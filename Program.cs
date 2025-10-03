@@ -71,6 +71,7 @@ builder.Services.AddScoped<Kernel>(sp =>
 
 // Application Services
 builder.Services.AddScoped<ISalesDataService, SalesDataService>();
+builder.Services.AddScoped<IPromptSecurityService, PromptSecurityService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 
 // HttpClient (para possíveis chamadas externas)
