@@ -1,0 +1,41 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="true">
+        <MudImage Src="https://a.storyblok.com/f/114796/1773x591/965cead4ef/logo-pagbank-principal-1.svg" 
+                  Alt="PagBank" 
+                  Height="30" 
+                  Class="mr-4" />
+        <MudText Typo="Typo.h6">Assistente de Vendas</MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.body2" Class="mr-2">
+            <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" /> João Silva
+        </MudText>
+    </MudAppBar>
+    
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 pb-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private readonly MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#00a868",      // Verde PagBank
+            Secondary = "#1a1a1a",
+            AppbarBackground = "#00a868",
+            AppbarText = "#ffffff",
+            Background = "#f5f5f5"
+        }
+    };
+}
+

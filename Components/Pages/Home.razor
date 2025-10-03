@@ -1,0 +1,255 @@
+@page "/"
+@inject IChatService ChatService
+@inject ILogger<Home> Logger
+@implements IDisposable
+
+<PageTitle>PagBank - Assistente de Vendas</PageTitle>
+
+<MudCard Elevation="2" Class="chat-container">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h5">
+                <MudIcon Icon="@Icons.Material.Filled.ChatBubble" Class="mr-2" />
+                Chat com Assistente de Vendas
+            </MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudTooltip Text="Limpar conversa">
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" 
+                              Color="Color.Primary" 
+                              OnClick="ClearChat" />
+            </MudTooltip>
+        </CardHeaderActions>
+    </MudCardHeader>
+    
+    <MudCardContent>
+        @* Mensagens de boas-vindas *@
+        @if (!_messages.Any())
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-4">
+                👋 Olá! Sou seu assistente de vendas do PagBank. 
+                Pergunte-me sobre suas vendas, faturamento, produtos mais vendidos e muito mais!
+            </MudAlert>
+            
+            <MudText Typo="Typo.subtitle2" Class="mb-2">📋 Perguntas sugeridas:</MudText>
+            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Class="mb-4">
+                @foreach (var suggestion in _suggestions)
+                {
+                    <MudChip T="string" 
+                            Color="Color.Primary" 
+                            Variant="Variant.Outlined" 
+                            OnClick="@(() => SendSuggestion(suggestion))"
+                            Size="Size.Small">
+                        @suggestion
+                    </MudChip>
+                }
+            </MudStack>
+        }
+
+        @* Lista de mensagens *@
+        <div class="chat-messages" @ref="_messagesContainer">
+            @foreach (var message in _messages)
+            {
+                <div class="@GetMessageClass(message.Role)">
+                    <MudPaper Elevation="1" Class="@GetPaperClass(message.Role)">
+                        @if (message.Role == "user")
+                        {
+                            <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">@message.Content</MudText>
+                        }
+                        else
+                        {
+                            <MudMarkdown Value="@message.Content" />
+                        }
+                        <MudText Typo="Typo.caption" Class="mt-2" Style="opacity: 0.7;">
+                            @message.Timestamp.ToLocalTime().ToString("HH:mm")
+                        </MudText>
+                    </MudPaper>
+                </div>
+            }
+            
+            @* Mensagem sendo digitada *@
+            @if (_isTyping)
+            {
+                <div class="message-assistant">
+                    <MudPaper Elevation="1" Class="pa-3 message-bubble assistant-bubble">
+                        <MudMarkdown Value="@_currentResponse" />
+                    </MudPaper>
+                </div>
+            }
+        </div>
+    </MudCardContent>
+    
+    <MudCardActions Class="pa-4">
+        <MudTextField @bind-Value="_userMessage"
+                     Label="Digite sua mensagem..."
+                     Variant="Variant.Outlined"
+                     Lines="2"
+                     MaxLength="500"
+                     Counter="500"
+                     FullWidth="true"
+                     Disabled="@_isSending"
+                     OnKeyDown="HandleKeyPress"
+                     Immediate="true"
+                     Class="flex-grow-1 mr-2" />
+        
+        <MudButton Variant="Variant.Filled"
+                  Color="Color.Primary"
+                  EndIcon="@Icons.Material.Filled.Send"
+                  OnClick="SendMessage"
+                  Disabled="@(_isSending || string.IsNullOrWhiteSpace(_userMessage))"
+                  Size="Size.Large">
+            @(_isSending ? "Enviando..." : "Enviar")
+        </MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    private List<ChatMessage> _messages = new();
+    private string _userMessage = string.Empty;
+    private string _currentResponse = string.Empty;
+    private bool _isSending;
+    private bool _isTyping;
+    private ElementReference _messagesContainer;
+    private CancellationTokenSource? _cancellationTokenSource;
+
+    private readonly string[] _suggestions = new[]
+    {
+        "Quantas vendas fiz na semana passada?",
+        "Minhas vendas melhoraram ou pioraram?",
+        "Qual meu produto mais vendido?",
+        "Quanto faturei no mês?",
+        "Compare minhas vendas de hoje com ontem"
+    };
+
+    protected override void OnInitialized()
+    {
+        _messages = ChatService.GetChatHistory();
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_userMessage) || _isSending)
+            return;
+
+        var message = _userMessage.Trim();
+        _userMessage = string.Empty;
+        
+        // Força atualização imediata da UI para limpar o campo
+        StateHasChanged();
+        
+        _isSending = true;
+        _isTyping = true;
+        _currentResponse = string.Empty;
+
+        try
+        {
+            // Adiciona mensagem do usuário
+            _messages.Add(new ChatMessage
+            {
+                Role = "user",
+                Content = message,
+                Timestamp = DateTime.UtcNow
+            });
+
+            StateHasChanged();
+            await ScrollToBottom();
+
+            // Cancellation token para permitir cancelamento
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            // Recebe resposta com streaming
+            await foreach (var token in ChatService.SendMessageStreamAsync(message, _cancellationTokenSource.Token))
+            {
+                _currentResponse += token;
+                StateHasChanged();
+                await Task.Delay(10); // Pequeno delay para animação de digitação
+            }
+
+            // Adiciona resposta completa ao histórico
+            if (!string.IsNullOrEmpty(_currentResponse))
+            {
+                _messages.Add(new ChatMessage
+                {
+                    Role = "assistant",
+                    Content = _currentResponse,
+                    Timestamp = DateTime.UtcNow
+                });
+            }
+
+            _currentResponse = string.Empty;
+            _isTyping = false;
+        }
+        catch (OperationCanceledException)
+        {
+            Logger.LogInformation("Operação cancelada pelo usuário");
+            _currentResponse = string.Empty;
+            _isTyping = false;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erro ao enviar mensagem");
+            _messages.Add(new ChatMessage
+            {
+                Role = "assistant",
+                Content = "❌ Erro ao processar sua mensagem. Por favor, tente novamente.",
+                Timestamp = DateTime.UtcNow,
+                IsError = true
+            });
+            _isTyping = false;
+        }
+        finally
+        {
+            _isSending = false;
+            StateHasChanged();
+            await ScrollToBottom();
+        }
+    }
+
+    private async Task SendSuggestion(string suggestion)
+    {
+        _userMessage = suggestion;
+        await SendMessage();
+    }
+
+    private void ClearChat()
+    {
+        ChatService.ClearHistory();
+        _messages.Clear();
+        _currentResponse = string.Empty;
+        _isTyping = false;
+        StateHasChanged();
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await SendMessage();
+        }
+    }
+
+    private async Task ScrollToBottom()
+    {
+        await Task.Delay(100); // Aguarda renderização
+    }
+
+    private string GetMessageClass(string role)
+    {
+        return role == "user" ? "message-user" : "message-assistant";
+    }
+
+    private string GetPaperClass(string role)
+    {
+        return role == "user" 
+            ? "pa-3 message-bubble user-bubble" 
+            : "pa-3 message-bubble assistant-bubble";
+    }
+
+    public void Dispose()
+    {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+    }
+}
+
