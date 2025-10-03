@@ -1,0 +1,3 @@
+// Backup do ChatService antes de mudanças críticas
+// Este arquivo é apenas documentação
+
