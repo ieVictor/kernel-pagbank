@@ -1,13 +1,23 @@
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning",
-      "Microsoft.SemanticKernel": "Information"
-    }
-  },
-  "Gemini": {
-    "ApiKey": "SUA_API_KEY_AQUI"
-  }
+	"Logging": {
+		"LogLevel": {
+			"Default": "Information",
+			"Microsoft.AspNetCore": "Warning"
+		}
+	},
+	"AllowedHosts": "*",
+	"ConnectionStrings": {
+		"DefaultConnection": "Data Source=Data/sales.db"
+	},
+	"Gemini": {
+		"ApiKey": "GEMINI_API_KEY"
+	},
+	"SemanticKernel": {
+		"ModelId": "gemini-2.5-pro",
+		"MaxTokens": 2048,
+		"Temperature": 0.7
+	},
+	"RateLimit": {
+		"MaxRequestsPerMinute": 10
+	}
 }
-
