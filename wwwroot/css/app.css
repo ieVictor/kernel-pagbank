@@ -1,0 +1,163 @@
+/* Estilo para o container do chat */
+.chat-container {
+    height: calc(100vh - 150px);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-container .mud-card-content {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 350px);
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px 0;
+}
+
+/* Mensagens do usuário */
+.message-user {
+    display: flex;
+    justify-content: flex-end;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.user-bubble {
+    background: linear-gradient(135deg, #00a868 0%, #008854 100%) !important;
+    color: white !important;
+    border-radius: 18px 18px 4px 18px !important;
+    max-width: 70%;
+}
+
+.user-bubble .mud-typography {
+    color: white !important;
+}
+
+/* Mensagens do assistente */
+.message-assistant {
+    display: flex;
+    justify-content: flex-start;
+    animation: slideInLeft 0.3s ease-out;
+}
+
+.assistant-bubble {
+    background: white !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 18px 18px 18px 4px !important;
+    max-width: 70%;
+}
+
+/* Animações */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 960px) {
+    .user-bubble,
+    .assistant-bubble {
+        max-width: 85%;
+    }
+}
+
+/* Scrollbar customizada */
+.chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Chips de sugestões */
+.mud-chip {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.mud-chip:hover {
+    transform: translateY(-2px);
+}
+
+/* Estilo do Markdown */
+.mud-markdown {
+    font-size: 0.875rem !important;
+    line-height: 1.5;
+}
+
+.mud-markdown h1 {
+    font-size: 1.25rem !important;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.mud-markdown h2 {
+    font-size: 1.1rem !important;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.mud-markdown h3 {
+    font-size: 1rem !important;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.mud-markdown p {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.mud-markdown ul,
+.mud-markdown ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    padding-left: 1.5rem;
+}
+
+.mud-markdown li {
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+
+.mud-markdown strong {
+    font-weight: 600;
+}
+
+.mud-markdown code {
+    font-size: 0.8rem !important;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
