@@ -38,6 +38,7 @@ bld/
 *.sln.iml
 
 # User Secrets (contém API keys)
+appsettings.json
 appsettings.Development.json
 secrets.json
 
