@@ -6,20 +6,21 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="1" Dense="true">
-        <MudImage Src="https://a.storyblok.com/f/114796/1773x591/965cead4ef/logo-pagbank-principal-1.svg" 
+    <MudAppBar Elevation="1" Dense="true" Class="px-4 py-2">
+			<div class="d-flex align-items-center gap-2">
+        <MudImage Src="https://acq-static-pages.pagseguro.com.br/static-pages/website/website-home-pages/_next/static/media/logo-pagbank.11b4ead9.svg" 
                   Alt="PagBank" 
-                  Height="30" 
-                  Class="mr-4" />
-        <MudText Typo="Typo.h6">Assistente de Vendas</MudText>
+                  Height="30" />
+        <MudText Typo="Typo.h6">Pag<span style="color: #1bb99a; font-weight: 800;">IA</span></MudText>
+			</div>
         <MudSpacer />
-        <MudText Typo="Typo.body2" Class="mr-2">
+        <MudText Typo="Typo.body2" Class="mr-2 d-flex align-items-center">
             <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" /> João Silva
         </MudText>
     </MudAppBar>
     
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4 pb-4">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 pb-4">
             @Body
         </MudContainer>
     </MudMainContent>
@@ -30,10 +31,10 @@
     {
         PaletteLight = new PaletteLight()
         {
-            Primary = "#00a868",      // Verde PagBank
+            Primary = "#1bb99a",      // Verde PagBank
             Secondary = "#1a1a1a",
-            AppbarBackground = "#00a868",
-            AppbarText = "#ffffff",
+            AppbarBackground = "#ffffff",
+            AppbarText = "#1a1a1a",
             Background = "#f5f5f5"
         }
     };
