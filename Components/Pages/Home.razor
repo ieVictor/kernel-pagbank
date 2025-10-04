@@ -34,7 +34,27 @@
 
         @* Lista de mensagens *@
         <div class="chat-messages" @ref="_messagesContainer">
-            @foreach (var message in _messages)
+				@foreach (var message in _messages) {
+					if (message.Role == "user") {
+						<MudChat Color="Color.Primary" ChatPosition="ChatBubblePosition.End">
+								<MudChatBubble Class="border-solid border mud-border-primary">
+									@message.Content
+								</MudChatBubble>
+						</MudChat>
+					} else {
+						<MudChat ChatPosition="ChatBubblePosition.Start">
+								<MudAvatar>
+									<MudImage Src="images/pagbank-icon.ico" />
+								</MudAvatar>
+								<MudChatBubble>
+									@message.Content
+								</MudChatBubble>
+						</MudChat>
+					}
+				}
+
+				
+            <!-- @foreach (var message in _messages)
             {
                 <div class="@GetMessageClass(message.Role)">
                     <MudPaper Elevation="1" Class="@GetPaperClass(message.Role)">
@@ -51,7 +71,7 @@
                         </MudText>
                     </MudPaper>
                 </div>
-            }
+            } -->
             
             @* Mensagem sendo digitada *@
             @if (_isTyping)
