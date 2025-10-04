@@ -30,20 +30,6 @@
                 👋 Olá! Sou seu assistente de vendas do PagBank. 
                 Pergunte-me sobre suas vendas, faturamento, produtos mais vendidos e muito mais!
             </MudAlert>
-            
-            <MudText Typo="Typo.subtitle2" Class="mb-2">📋 Perguntas sugeridas:</MudText>
-            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Class="mb-4">
-                @foreach (var suggestion in _suggestions)
-                {
-                    <MudChip T="string" 
-                            Color="Color.Primary" 
-                            Variant="Variant.Outlined" 
-                            OnClick="@(() => SendSuggestion(suggestion))"
-                            Size="Size.Small">
-                        @suggestion
-                    </MudChip>
-                }
-            </MudStack>
         }
 
         @* Lista de mensagens *@
@@ -80,26 +66,46 @@
     </MudCardContent>
     
     <MudCardActions Class="pa-4">
-        <MudTextField @bind-Value="_userMessage"
-                     Label="Digite sua mensagem..."
-                     Variant="Variant.Outlined"
-                     Lines="2"
-                     MaxLength="500"
-                     Counter="500"
-                     FullWidth="true"
-                     Disabled="@_isSending"
-                     OnKeyDown="HandleKeyPress"
-                     Immediate="true"
-                     Class="flex-grow-1 mr-2" />
-        
-        <MudButton Variant="Variant.Filled"
-                  Color="Color.Primary"
-                  EndIcon="@Icons.Material.Filled.Send"
-                  OnClick="SendMessage"
-                  Disabled="@(_isSending || string.IsNullOrWhiteSpace(_userMessage))"
-                  Size="Size.Large">
-            @(_isSending ? "Enviando..." : "Enviar")
-        </MudButton>
+			<MudGrid Spacing="1" Class="pa-0 ma-0">
+			@if (!_messages.Any()) {
+				<MudItem xs="12">
+					<MudStack Row="true" Wrap="Wrap.Wrap" Spacing="1">
+							@foreach (var suggestion in _suggestions)
+							{
+									<MudChip T="string" 
+													Color="Color.Primary" 
+													Variant="Variant.Outlined" 
+													OnClick="@(() => SendSuggestion(suggestion))"
+													Size="Size.Small">
+											@suggestion
+									</MudChip>
+							}
+					</MudStack>
+				</MudItem>
+			}
+				<MudItem Class="d-flex align-items-center" xs="12">
+					<MudTextField @bind-Value="_userMessage"
+											Class="flex-shrink-1"
+											FullWidth="true"
+											Label="Digite sua mensagem..."
+											Variant="Variant.Outlined"
+											Lines="2"
+											MaxLength="500"
+											Counter="500"
+											Disabled="@_isSending"
+											OnKeyDown="HandleKeyPress"
+											Immediate="true" />
+
+					<MudIconButton Variant="Variant.Filled"
+										Class="ma-2"
+										aria-label="Enviar mensagem"
+										Color="Color.Primary"
+										Icon="@Icons.Material.Filled.Send"
+										OnClick="SendMessage"
+										Disabled="@(_isSending || string.IsNullOrWhiteSpace(_userMessage))"
+										Size="Size.Medium"/>
+				</MudItem>
+			</MudGrid>
     </MudCardActions>
 </MudCard>
 
